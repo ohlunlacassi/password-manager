@@ -4,6 +4,7 @@ from tkinter import messagebox
 import random
 import json
 
+
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 
 letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -32,8 +33,8 @@ def generate_password():
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 def save_password():
     # Get the input values and remove any leading/trailing whitespace
-    website = website_input.get().strip()
-    email_username = email_username_input.get().strip()
+    website = website_input.get().strip().lower()
+    email_username = email_username_input.get().strip().lower()
     password = password_input.get().strip()
 
     # Create a dictionary to store the new data
@@ -71,7 +72,31 @@ def save_password():
 
     # Show confirmation message
     messagebox.showinfo(title="Success", message="Password saved successfully!")
-# ---------------------------- UI SETUP ------------------------------- #
+
+# ---------------------------- FIND PASSWORD  ------------------------------- #
+
+def find_password():
+    website = website_input.get().strip().lower()
+
+    if not website:
+        messagebox.showwarning(title="Oops", message="Please enter a website name to search.")
+        return  # Stop execution if any field is empty
+    else:
+        try:
+            with open("data.json", "r") as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            messagebox.showerror(title="Error", message="No Data File Found.")
+            return
+
+    if website in data:
+        email_username = data[website]["email"]
+        password = data[website]["password"]
+        messagebox.showinfo(title=website, message=f"Email: {email_username}\nPassword: {password}")
+    else:
+        messagebox.showwarning(title="Not found", message="No details for the website exists.")
+
+            # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
 window.title("Password Manager")
 window.config(padx=50, pady=20)
@@ -91,7 +116,7 @@ password_text = Label(text="Password:")
 password_text.grid(column=0, row=3, sticky="w")
 
 # Create an entry field
-website_input = Entry(width=38)
+website_input = Entry(width=21)
 website_input.focus() # focus the cursor into the first entry
 website_input.grid(column=1, row=1, columnspan=2, sticky="w")
 email_username_input = Entry(width=38)
@@ -108,6 +133,10 @@ generate_password_button.grid(column=2, row=3)
 # Create Add button
 add_button = Button(text="Add", width=36, command=save_password)
 add_button.grid(column=1, row=4, columnspan=2)
+
+# Create Search button
+search_button = Button(text="Search", width=13, command=find_password)
+search_button.grid(column=2, row=1)
 
 
 window.mainloop()
