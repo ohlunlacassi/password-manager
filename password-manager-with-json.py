@@ -31,11 +31,14 @@ def generate_password():
 
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 def save_password():
+    # Get the input values and remove any leading/trailing whitespace
     website = website_input.get().strip()
     email_username = email_username_input.get().strip()
     password = password_input.get().strip()
 
     # Create a dictionary to store the new data
+    # The outer dictionary uses the website as a key
+    # The inner dictionary stores email and password for that website
     new_data = {
         website: {
             "email": email_username,
@@ -45,17 +48,23 @@ def save_password():
 
     # Check if any field is empty and show a warning
     if not website or not email_username or not password:
-        messagebox.showwarning(title="Error", message="Please fill out all fields before saving.")
+        messagebox.showwarning(title="Oops", message="Please fill out all fields before saving.")
         return # Stop execution if any field is empty
     else:
-        with open("data.json", "r") as file: # update json file
-            data = json.load(file) # reading old data
-            data.update(new_data) # updating old data with new data
+        try:
+            with open("data.json", "r") as file:     # Try opening the existing JSON file
+                data = json.load(file) # Read old data from the file
+        except FileNotFoundError:
+            with open("data.json", "w") as file: # If file does not exist, create one
+                json.dump(new_data, file, indent=4)
+        else: # This block executes if no exception was raised
+            data.update(new_data)   # Update old data with new data
 
-        with open("data.json", "w") as file:
-            # saving updated data
-            json.dump(data, file, indent=4)
-
+            # Open file in write mode to save updated data
+            with open("data.json", "w") as file:
+                # saving updated data
+                json.dump(data, file, indent=4)
+        finally:
             # Clear the input fields after saving
             website_input.delete(0, END)  # move the cursor the zeroth character to the end of the entry
             password_input.delete(0, "end")
