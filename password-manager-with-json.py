@@ -76,24 +76,33 @@ def save_password():
 # ---------------------------- FIND PASSWORD  ------------------------------- #
 
 def find_password():
+    # Get the website input, remove any leading/trailing whitespace, and convert it to lowercase
     website = website_input.get().strip().lower()
 
+    # Check if the input is empty
     if not website:
         messagebox.showwarning(title="Oops", message="Please enter a website name to search.")
         return  # Stop execution if any field is empty
-    else:
-        try:
-            with open("data.json", "r") as file:
-                data = json.load(file)
-        except FileNotFoundError:
-            messagebox.showerror(title="Error", message="No Data File Found.")
-            return
 
+    try:
+        # Attemp to open the JSON file and load its content
+        with open("data.json", "r") as file:
+            data = json.load(file) # Read existing data from file
+    except FileNotFoundError:
+        # Show an error message if the file is not found
+        messagebox.showerror(title="Error", message="No Data File Found.")
+        return # Stop execution if the file doesn't exist
+
+    # Check if the website exists in the loaded data
     if website in data:
+        # Retrieve the stored email and password for the entered website
         email_username = data[website]["email"]
         password = data[website]["password"]
+
+        # Show the email and password in a pop-up message
         messagebox.showinfo(title=website, message=f"Email: {email_username}\nPassword: {password}")
     else:
+        # Show a warning if the website is not found in the data
         messagebox.showwarning(title="Not found", message="No details for the website exists.")
 
             # ---------------------------- UI SETUP ------------------------------- #
